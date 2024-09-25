@@ -3,6 +3,7 @@ from . import views
 from .views import client_list, invoice_list, payment_list, client_detail
 from .views import GoogleLoginCallback
 
+
 urlpatterns = [
     path('clients/', client_list, name='client-list'),
     path('clients/<int:id>/', client_detail, name='client-detail'), 

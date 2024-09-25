@@ -3,12 +3,26 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Client, Invoice, Payment
 from django.contrib.auth import authenticate, login
-from django.core import serializers
+from django.views import View
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from django.contrib.auth.models import User
+from .serializers import ClientSerializer, InvoiceSerializer, PaymentSerializer
 
-# Helper function to convert querysets to JSON
+
 def queryset_to_json(queryset):
-    return json.loads(serializers.serialize('json', queryset))
+    # Convert queryset to a list of dictionaries
+    return [obj_to_dict(obj) for obj in queryset]
 
+def obj_to_dict(obj):
+    # Convert a model instance to a dictionary
+    return {
+        'id': obj.id,
+        'name': obj.name if hasattr(obj, 'name') else None,
+        'email': obj.email if hasattr(obj, 'email') else None,
+        'address': obj.address if hasattr(obj, 'address') else None,
+        # Add other fields as necessary
+    }
 
 @csrf_exempt
 def client_list(request):
@@ -21,10 +35,28 @@ def client_list(request):
             data = json.loads(request.body)
             client = Client.objects.create(**data)
             return JsonResponse({'id': client.id}, status=201)
-        except:
-            return HttpResponse("Invalid data", status=400)
-    else:
-        return HttpResponse("Unsupported HTTP method.", status=405)
+        except Exception as e:
+            return HttpResponse(f"Invalid data: {str(e)}", status=400)
+
+@csrf_exempt
+def client_detail(request, id):
+    try:
+        client = Client.objects.get(id=id)
+    except Client.DoesNotExist:
+        return HttpResponse("Client not found.", status=404)
+
+    if request.method in ['PUT', 'PATCH']:
+        data = json.loads(request.body)
+        for key, value in data.items():
+            setattr(client, key, value)
+        client.save()
+        return JsonResponse({'id': client.id}, status=200)
+
+    if request.method == 'DELETE':
+        client.delete()
+        return HttpResponse(status=204)
+
+    return JsonResponse(obj_to_dict(client))
 
 @csrf_exempt
 def invoice_list(request):
@@ -40,10 +72,8 @@ def invoice_list(request):
             return JsonResponse({'id': invoice.id}, status=201)
         except Client.DoesNotExist:
             return HttpResponse("Client not found", status=404)
-        except:
-            return HttpResponse("Invalid data", status=400)
-    else:
-        return HttpResponse("Unsupported HTTP method.", status=405)
+        except Exception as e:
+            return HttpResponse(f"Invalid data: {str(e)}", status=400)
 
 @csrf_exempt
 def payment_list(request):
@@ -59,10 +89,8 @@ def payment_list(request):
             return JsonResponse({'id': payment.id}, status=201)
         except Invoice.DoesNotExist:
             return HttpResponse("Invoice not found", status=404)
-        except:
-            return HttpResponse("Invalid data", status=400)
-    else:
-        return HttpResponse("Unsupported HTTP method.", status=405)
+        except Exception as e:
+            return HttpResponse(f"Invalid data: {str(e)}", status=400)
 
 @csrf_exempt
 def login_view(request):
@@ -75,30 +103,45 @@ def login_view(request):
             login(request, user)
             return JsonResponse({'status': 'success'})
         return JsonResponse({'status': 'failed'}, status=401)
-    
-@csrf_exempt
-def client_detail(request, id):
-    try:
-        client = Client.objects.get(id=id)
-    except Client.DoesNotExist:
-        return HttpResponse("Client not found.", status=404)
 
-    if request.method == 'PUT' or request.method == 'PATCH':
-        data = json.loads(request.body)
-        for key, value in data.items():
-            setattr(client, key, value)
-        client.save()
-        return JsonResponse({'id': client.id}, status=200)
+# Google login callback class
+class GoogleLoginCallback(View):
+    def post(self, request):
+        # Get the token from the request body
+        try:
+            data = json.loads(request.body)
+            token = data.get('token')
+            if not token:
+                return JsonResponse({'error': 'No token provided'}, status=400)
 
-    if request.method == 'DELETE':
-        client.delete()
-        return HttpResponse(status=204)
+            # Verify the token
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), YOUR_GOOGLE_CLIENT_ID)
 
-    # Optional: Handle GET request to return client data
-    return JsonResponse({
-        'id': client.id,
-        'name': client.name,
-        'email': client.email,
-        'address': client.address,
-    })
+            # Extract user information
+            user_email = idinfo['email']
+            user_name = idinfo.get('name', '')
 
+            # Check if the user exists, if not, create a new one
+            user, created = User.objects.get_or_create(username=user_email, defaults={'email': user_email, 'first_name': user_name})
+
+            # Log the user in
+            login(request, user)
+
+            return JsonResponse({'status': 'success', 'user_id': user.id})
+        except ValueError:
+            return JsonResponse({'error': 'Invalid token'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+class ClientViewSet(viewsets.ModelViewSet):
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
+
+class InvoiceViewSet(viewsets.ModelViewSet):
+    queryset = Invoice.objects.all()
+    serializer_class = InvoiceSerializer
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer

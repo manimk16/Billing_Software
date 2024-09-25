@@ -20,12 +20,27 @@ from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView
 from rest_framework.routers import DefaultRouter
 from invoices.views import ClientViewSet, InvoiceViewSet, PaymentViewSet
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
 # Setting up DRF router for ViewSets
 router = DefaultRouter()
 router.register(r'clients', ClientViewSet)
 router.register(r'invoices', InvoiceViewSet)
 router.register(r'payments', PaymentViewSet)
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Your API Title",
+        default_version='v1',
+        description="API for Google OAuth",
+        contact=openapi.Contact(email="contact@yourapi.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 # Merging the paths into a single urlpatterns list
 urlpatterns = [
@@ -46,4 +61,8 @@ urlpatterns = [
 
     # API Router
     path('api/', include(router.urls)),  # Using DRF router for ViewSets (Clients, Invoices, Payments)
+    
+    path('auth/social/', include('allauth.urls')),  # Social login/register
+    path('auth/social/custom/', include('google_auth.urls')),  # Social login/register
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

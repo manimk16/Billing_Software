@@ -65,4 +65,7 @@ urlpatterns = [
     path('auth/social/', include('allauth.urls')),  # Social login/register
     path('auth/social/custom/', include('google_auth.urls')),  # Social login/register
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    
+    path('auth/social/', include('social_django.urls', namespace='social')),
+    path('callback/', include('social_django.urls', namespace='social')),
 ]

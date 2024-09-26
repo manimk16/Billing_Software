@@ -8,6 +8,8 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.contrib.auth.models import User
 from .serializers import ClientSerializer, InvoiceSerializer, PaymentSerializer
+from rest_framework import viewsets
+
 
 
 def queryset_to_json(queryset):
@@ -115,7 +117,7 @@ class GoogleLoginCallback(View):
                 return JsonResponse({'error': 'No token provided'}, status=400)
 
             # Verify the token
-            idinfo = id_token.verify_oauth2_token(token, requests.Request(), YOUR_GOOGLE_CLIENT_ID)
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), "484398151029-lf22i1853m8ne6pffc4g68mdvnne3mdr.apps.googleusercontent.com")
 
             # Extract user information
             user_email = idinfo['email']

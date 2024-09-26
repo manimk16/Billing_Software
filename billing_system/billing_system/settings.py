@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
     'invoices',
+    'authentication',
+    'google_auth',
+    'social_django',
 ]
 
 SITE_ID = 1  # This is required for allauth
@@ -91,6 +94,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend', 
 ]
 
 ROOT_URLCONF = 'billing_system.urls'
@@ -165,3 +170,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '484398151029-lf22i1853m8ne6pffc4g68mdvnne3mdr.apps.googleusercontent.com' 
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+LOGIN_REDIRECT_URL = '/'
+
+LOGIN_URL = '/login/'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']

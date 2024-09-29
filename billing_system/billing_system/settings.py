@@ -11,21 +11,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os  # Import os for environment variable handling
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&6-+$4pl8&@ond0s8((nrnq3s(p+lt#fs0t(+hdn(g9mang%=b'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')  # Use an environment variable
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Add your production domain here
 
 
 # Application definition
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'rest_framework',
-    'drf_yasg',  # If you want to document the API using Swagger
+    'drf_yasg',  # For Swagger documentation
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
     'invoices',
@@ -57,8 +57,8 @@ SITE_ID = 1  # This is required for allauth
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': '484398151029-lf22i1853m8ne6pffc4g68mdvnne3mdr.apps.googleusercontent.com',  # Google OAuth client ID
-            'secret': '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',  # Google OAuth client secret
+            'client_id': os.getenv('GOOGLE_CLIENT_ID', 'your-client-id'),  # Use an environment variable
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET', 'your-client-secret'),  # Use an environment variable
             'key': ''
         },
         'SCOPE': [
@@ -69,13 +69,15 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'OAUTH_PKCE_ENABLED': True,  # Enable PKCE for better security
-        'REDIRECT_URI': 'http://localhost:8000/callback', # Replace with your redirect URL
+        'REDIRECT_URI': 'http://localhost:8000/callback',  # Replace with your redirect URL
     }
 }
-AUTHENTICATION_BACKENDS = (
+
+AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-)
+    'social_core.backends.google.GoogleOAuth2',  # Moved here
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -84,18 +86,14 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # Add here
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend', 
 ]
 
 ROOT_URLCONF = 'billing_system.urls'
@@ -171,13 +169,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '484398151029-lf22i1853m8ne6pffc4g68mdvnne3mdr.apps.googleusercontent.com' 
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-
 LOGIN_REDIRECT_URL = '/'
-
 LOGIN_URL = '/login/'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
-
 SOCIAL_AUTH_URL_NAMESPACE = 'social'

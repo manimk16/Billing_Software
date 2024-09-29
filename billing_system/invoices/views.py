@@ -9,6 +9,9 @@ from google.auth.transport import requests
 from django.contrib.auth.models import User
 from .serializers import ClientSerializer, InvoiceSerializer, PaymentSerializer
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 
@@ -147,3 +150,14 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+    
+    
+class InvoiceList(APIView):
+    """
+    Retrieve all invoices or create a new invoice.
+    """
+    def get(self, request):
+        return Response({"message": "List of invoices"}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        return Response({"message": "Invoice created"}, status=status.HTTP_201_CREATED)

@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from .views import client_list, invoice_list, payment_list, client_detail
 from .views import GoogleLoginCallback
-
+from .views import InvoiceList
 
 urlpatterns = [
     path('clients/', client_list, name='client-list'),
@@ -10,4 +10,6 @@ urlpatterns = [
     path('invoices/', invoice_list, name='invoice_list'),
     path('payments/', payment_list, name='payment_list'),
     path('login/', GoogleLoginCallback.as_view(), name='google-login'),
+    path('invoices/', InvoiceList.as_view(), name='invoice-list'),
 ]
+

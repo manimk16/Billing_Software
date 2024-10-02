@@ -12,6 +12,8 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from .models import Invoice
+from .serializers import InvoiceSerializer
 
 
 
@@ -161,3 +163,9 @@ class InvoiceList(APIView):
 
     def post(self, request):
         return Response({"message": "Invoice created"}, status=status.HTTP_201_CREATED)
+    
+    
+
+class InvoiceViewSet(viewsets.ModelViewSet):
+    queryset = Invoice.objects.all()
+    serializer_class = InvoiceSerializer

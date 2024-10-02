@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os  # Import os for environment variable handling
+import paypalrestsdk
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'authentication',
     'google_auth',
     'social_django',
+    'corsheaders',
 ]
 
 SITE_ID = 1  # This is required for allauth
@@ -94,6 +96,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'billing_system.urls'
@@ -174,3 +177,9 @@ LOGIN_URL = '/login/'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+paypalrestsdk.configure({
+    "mode": "sandbox",  # Change to "live" for production
+    "client_id": "AbJ31-F89xtI3xTEEuKSMi_Rd4IdbG-PK3ONMDpZWb8JXcy_jZCS0tbo6PfSeN0irhJJcPjh6ZeLY92A",
+    "client_secret": "EAwgP7u0IzW-fRVXkSFIL9eO2ZzLCusU7kS-G6rIvIHKvzFOHP1ZDm5cJbdvFGZp2QKnN0ueY1szmATj"
+})

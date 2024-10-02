@@ -15,6 +15,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.http import HttpResponse
+from .views import create_payment, execute_payment, payment_success, payment_cancel 
 
 # Setting up DRF router for ViewSets
 router = DefaultRouter()
@@ -37,7 +38,7 @@ schema_view = get_schema_view(
 
 # Home view for the root URL
 def home_view(request):
-    return HttpResponse("Welcome to the Billing System")
+    return HttpResponse('templates/auth/social/home.js')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -64,7 +65,14 @@ urlpatterns = [
 
     # Swagger API Documentation
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    
+    # Payment PayPal
+    path('payment/create/', create_payment, name='create_payment'),
+    path('payment/success/', payment_success, name='payment_success'),
+    path('payment/cancel/', payment_cancel, name='payment_cancel'),
+    path('payment/execute/', execute_payment, name='execute_payment'),
 ]
 

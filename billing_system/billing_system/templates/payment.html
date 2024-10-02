@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pay with PayPal</title>
+</head>
+<body>
+    <h1>Pay with PayPal</h1>
+    <button id="paypal-button">Pay with PayPal</button>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"></script>
+    <script>
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return fetch('/payment/create/', {
+                    method: 'post'
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(data) {
+                    return data.approval_url;
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.redirect();
+            }
+        }).render('#paypal-button');
+    </script>
+</body>
+</html>

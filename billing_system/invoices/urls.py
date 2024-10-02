@@ -1,8 +1,11 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 from .views import client_list, invoice_list, payment_list, client_detail
 from .views import GoogleLoginCallback
 from .views import InvoiceList
+from django.urls import path
+from .views import InvoiceViewSet
 
 urlpatterns = [
     path('clients/', client_list, name='client-list'),
@@ -13,3 +16,9 @@ urlpatterns = [
     path('invoices/', InvoiceList.as_view(), name='invoice-list'),
 ]
 
+router = DefaultRouter()
+router.register(r'invoices', InvoiceViewSet)
+
+urlpatterns = [
+    path('', include(router.urls)),
+]

@@ -8,13 +8,9 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.contrib.auth.models import User
 from .serializers import ClientSerializer, InvoiceSerializer, PaymentSerializer
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .models import Invoice
-from .serializers import InvoiceSerializer
-
 
 
 def queryset_to_json(queryset):
@@ -31,6 +27,7 @@ def obj_to_dict(obj):
         # Add other fields as necessary
     }
 
+
 @csrf_exempt
 def client_list(request):
     if request.method == 'GET':
@@ -44,6 +41,7 @@ def client_list(request):
             return JsonResponse({'id': client.id}, status=201)
         except Exception as e:
             return HttpResponse(f"Invalid data: {str(e)}", status=400)
+
 
 @csrf_exempt
 def client_detail(request, id):
@@ -65,6 +63,7 @@ def client_detail(request, id):
 
     return JsonResponse(obj_to_dict(client))
 
+
 @csrf_exempt
 def invoice_list(request):
     if request.method == 'GET':
@@ -81,6 +80,7 @@ def invoice_list(request):
             return HttpResponse("Client not found", status=404)
         except Exception as e:
             return HttpResponse(f"Invalid data: {str(e)}", status=400)
+
 
 @csrf_exempt
 def payment_list(request):
@@ -99,6 +99,7 @@ def payment_list(request):
         except Exception as e:
             return HttpResponse(f"Invalid data: {str(e)}", status=400)
 
+
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
@@ -111,27 +112,23 @@ def login_view(request):
             return JsonResponse({'status': 'success'})
         return JsonResponse({'status': 'failed'}, status=401)
 
+
 # Google login callback class
 class GoogleLoginCallback(View):
     def post(self, request):
-        # Get the token from the request body
         try:
             data = json.loads(request.body)
             token = data.get('token')
             if not token:
                 return JsonResponse({'error': 'No token provided'}, status=400)
 
-            # Verify the token
-            idinfo = id_token.verify_oauth2_token(token, requests.Request(), "484398151029-lf22i1853m8ne6pffc4g68mdvnne3mdr.apps.googleusercontent.com")
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), "YOUR_GOOGLE_CLIENT_ID")
 
-            # Extract user information
             user_email = idinfo['email']
             user_name = idinfo.get('name', '')
 
-            # Check if the user exists, if not, create a new one
             user, created = User.objects.get_or_create(username=user_email, defaults={'email': user_email, 'first_name': user_name})
 
-            # Log the user in
             login(request, user)
 
             return JsonResponse({'status': 'success', 'user_id': user.id})
@@ -145,27 +142,20 @@ class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
+
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
 
+
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
-    
-    
+
+
 class InvoiceList(APIView):
-    """
-    Retrieve all invoices or create a new invoice.
-    """
     def get(self, request):
         return Response({"message": "List of invoices"}, status=status.HTTP_200_OK)
 
     def post(self, request):
         return Response({"message": "Invoice created"}, status=status.HTTP_201_CREATED)
-    
-    
-
-class InvoiceViewSet(viewsets.ModelViewSet):
-    queryset = Invoice.objects.all()
-    serializer_class = InvoiceSerializer

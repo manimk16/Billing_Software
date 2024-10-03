@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'google_auth',
     'social_django',
     'corsheaders',
+    'payment',
 ]
 
 SITE_ID = 1  # This is required for allauth

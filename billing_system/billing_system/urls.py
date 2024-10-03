@@ -16,6 +16,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.http import HttpResponse
 from .views import create_payment, execute_payment, payment_success, payment_cancel 
+from django.shortcuts import render
 
 # Setting up DRF router for ViewSets
 router = DefaultRouter()
@@ -38,7 +39,7 @@ schema_view = get_schema_view(
 
 # Home view for the root URL
 def home_view(request):
-    return HttpResponse('templates/auth/social/home.js')
+    return render(request, 'auth/social/home.html')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -22,6 +22,9 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    phone_no = serializers.CharField(source='user.profile.phone_no', read_only=True)  # Assuming a Profile model
+    email_id = serializers.EmailField(source='user.email', read_only=True)
     class Meta:
         model = Invoice
-        fields = ['id','amount', 'payment_date', 'payment_method', 'customer', 'description']  # Add 'client_id' if needed
+        fields = '__all__'  # Add 'client_id' if needed

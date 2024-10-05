@@ -1,10 +1,3 @@
-"""
-URL configuration for billing_system project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-"""
-
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views
@@ -14,8 +7,6 @@ from invoices.views import ClientViewSet, InvoiceViewSet, PaymentViewSet
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from django.http import HttpResponse
-from .views import create_payment, execute_payment, payment_success, payment_cancel 
 from django.shortcuts import render
 
 # Setting up DRF router for ViewSets
@@ -39,12 +30,12 @@ schema_view = get_schema_view(
 
 # Home view for the root URL
 def home_view(request):
-    return render(request, 'auth/social/home.html')
+    return render(request, 'auth/social/home.html')  # Adjust path as necessary
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),  # Home view for root URL
-    path('google-auth/', include('google_auth.urls')),
+    path('google-auth/', include('google_auth.urls')),  # Google auth URLs
 
     # Authentication URLs
     path('auth/', include('social_django.urls', namespace='social_auth')),  # Social authentication
@@ -62,18 +53,10 @@ urlpatterns = [
 
     # App URLs
     path('invoices/', include('invoices.urls')),  # URLs for invoice management
-    path('auth/social/custom/', include('google_auth.urls')),  # Custom social login/register
 
     # Swagger API Documentation
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    
-    # Payment PayPal
-    path('payment/create/', create_payment, name='create_payment'),
-    path('payment/success/', payment_success, name='payment_success'),
-    path('payment/cancel/', payment_cancel, name='payment_cancel'),
-    path('payment/execute/', execute_payment, name='execute_payment'),
 ]
-

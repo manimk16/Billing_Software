@@ -9,16 +9,13 @@ from google.auth.transport import requests
 from django.contrib.auth.models import User
 from .serializers import ClientSerializer, InvoiceSerializer, PaymentSerializer
 from rest_framework import viewsets, status
-from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
 
 def queryset_to_json(queryset):
-    # Convert queryset to a list of dictionaries
     return [obj_to_dict(obj) for obj in queryset]
 
 def obj_to_dict(obj):
-    # Convert a model instance to a dictionary
     return {
         'id': obj.id,
         'name': obj.name if hasattr(obj, 'name') else None,
@@ -26,7 +23,6 @@ def obj_to_dict(obj):
         'address': obj.address if hasattr(obj, 'address') else None,
         # Add other fields as necessary
     }
-
 
 @csrf_exempt
 def client_list(request):
@@ -41,7 +37,6 @@ def client_list(request):
             return JsonResponse({'id': client.id}, status=201)
         except Exception as e:
             return HttpResponse(f"Invalid data: {str(e)}", status=400)
-
 
 @csrf_exempt
 def client_detail(request, id):
@@ -63,7 +58,6 @@ def client_detail(request, id):
 
     return JsonResponse(obj_to_dict(client))
 
-
 @csrf_exempt
 def invoice_list(request):
     if request.method == 'GET':
@@ -80,7 +74,6 @@ def invoice_list(request):
             return HttpResponse("Client not found", status=404)
         except Exception as e:
             return HttpResponse(f"Invalid data: {str(e)}", status=400)
-
 
 @csrf_exempt
 def payment_list(request):
@@ -99,7 +92,6 @@ def payment_list(request):
         except Exception as e:
             return HttpResponse(f"Invalid data: {str(e)}", status=400)
 
-
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
@@ -111,7 +103,6 @@ def login_view(request):
             login(request, user)
             return JsonResponse({'status': 'success'})
         return JsonResponse({'status': 'failed'}, status=401)
-
 
 # Google login callback class
 class GoogleLoginCallback(View):
@@ -137,25 +128,40 @@ class GoogleLoginCallback(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-
 
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
 
-
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data.copy()  # Make a mutable copy of the request data
+            payment = Payment.objects.create(
+                amount=data['amount'],
+                payment_date=data['payment_date'],
+                invoice_id=data['invoice'],  # Use invoice_id for ForeignKey
+                username=data['username'],
+                phone_no=data['phone_no'],
+                email_id=data['email_id'],
+                payment_method=data['payment_method']
+            )
+            return Response({'id': payment.id}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class InvoiceList(APIView):
-    def get(self, request):
-        return Response({"message": "List of invoices"}, status=status.HTTP_200_OK)
+from django.views.generic import ListView, DetailView
 
-    def post(self, request):
-        return Response({"message": "Invoice created"}, status=status.HTTP_201_CREATED)
+class InvoiceListView(ListView):
+    model = Invoice
+    template_name = 'invoices/invoice_list.html'  # Create this template
+
+class InvoiceDetailView(DetailView):
+    model = Invoice
+    template_name = 'invoices/invoice_detail.html'  # Create this template

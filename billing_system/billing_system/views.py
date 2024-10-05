@@ -57,3 +57,6 @@ def execute_payment(request):
         return JsonResponse({'status': 'Payment executed successfully!'})
     else:
         return JsonResponse({'error': payment.error}, status=400)
+
+def home_view(request):
+    return render(request, 'auth/social/home.html')  # Adjust path as necessary

@@ -10,7 +10,7 @@ from django.shortcuts import render
 
 # Import your ViewSets and PayPal-related views
 from invoices.views import ClientViewSet, InvoiceViewSet, PaymentViewSet  # Assuming these are defined in invoices/views.py
-from payment.views import create_payment, payment_success, payment_cancel, execute_payment  # Assuming these are in payment/views.py
+#from payment.views import create_payment, payment_success, payment_cancel, execute_payment  # Assuming these are in payment/views.py
 
 # Setting up DRF router for ViewSets
 router = DefaultRouter()
@@ -39,6 +39,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),  # Home view for root URL
     path('google-auth/', include('google_auth.urls')),
+    path('', include(router.urls)),
 
     # Authentication URLs
     path('auth/', include('social_django.urls', namespace='social_auth')),  # Social authentication
@@ -65,8 +66,16 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
     # Payment PayPal
-    path('payment/create/', create_payment, name='create_payment'),
+    """path('payment/create/', create_payment, name='create_payment'),
     path('payment/success/', payment_success, name='payment_success'),
     path('payment/cancel/', payment_cancel, name='payment_cancel'),
-    path('payment/execute/', execute_payment, name='execute_payment'),
+    path('payment/execute/', execute_payment, name='execute_payment'),"""
+]
+from django.urls import path
+from . import views  # Ensure views are defined in invoices/views.py
+
+urlpatterns = [
+    path('', views.InvoiceListView.as_view(), name='invoice_list'),  # Example for listing invoices
+    path('<int:pk>/', views.InvoiceDetailView.as_view(), name='invoice_detail'),  # Example for viewing a specific invoice
+    # Add additional invoice-related URLs as needed
 ]

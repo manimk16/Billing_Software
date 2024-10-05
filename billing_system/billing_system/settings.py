@@ -52,16 +52,17 @@ INSTALLED_APPS = [
     'google_auth',
     'social_django',
     'corsheaders',
-    'payment',
 ]
+
+APPEND_SLASH = False
 
 SITE_ID = 1  # This is required for allauth
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': os.getenv('GOOGLE_CLIENT_ID', 'your-client-id'),  # Use an environment variable
-            'secret': os.getenv('GOOGLE_CLIENT_SECRET', 'your-client-secret'),  # Use an environment variable
+            'client_id': os.getenv('GOOGLE_CLIENT_ID', '484398151029-lf22i1853m8ne6pffc4g68mdvnne3mdr.apps.googleusercontent.com'),  # Use an environment variable
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET', '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'),  # Use an environment variable
             'key': ''
         },
         'SCOPE': [

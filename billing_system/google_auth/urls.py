@@ -7,4 +7,7 @@ urlpatterns = [
     path('somewhere/', views.some_view, name='somewhere'),
 
     path('example/', example_view, name='example-view'),
+
+    path('callback/', views.google_callback, name='google_callback'),
+    # Other URLs for Google Auth
 ]

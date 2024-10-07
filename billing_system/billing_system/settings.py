@@ -185,3 +185,13 @@ paypalrestsdk.configure({
     "client_id": "AbJ31-F89xtI3xTEEuKSMi_Rd4IdbG-PK3ONMDpZWb8JXcy_jZCS0tbo6PfSeN0irhJJcPjh6ZeLY92A",
     "client_secret": "EAwgP7u0IzW-fRVXkSFIL9eO2ZzLCusU7kS-G6rIvIHKvzFOHP1ZDm5cJbdvFGZp2QKnN0ueY1szmATj"
 })
+
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.your-email-provider.com'  # e.g., 'smtp.gmail.com'
+EMAIL_PORT = 587  # For TLS
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@example.com'
+EMAIL_HOST_PASSWORD = 'your-email-password'  # Make sure to use environment variables for security
+DEFAULT_FROM_EMAIL = 'your-email@example.com'

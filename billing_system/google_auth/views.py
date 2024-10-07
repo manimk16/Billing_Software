@@ -24,3 +24,8 @@ from django.shortcuts import render
 def google_login(request):
     # Handle Google login logic here
     return render(request, 'auth/google_login.html')  # Create a Google login template
+
+
+def google_callback(request):
+    # Your logic here
+    return render(request, 'your_template.html')

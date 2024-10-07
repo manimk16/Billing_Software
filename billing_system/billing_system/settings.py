@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')  # Use an
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Add your production domain here
+ALLOWED_HOSTS = ['billing-software-ar8b.onrender.com', '127.0.0.1', 'localhost'] # Add your production domain here
 
 
 # Application definition
